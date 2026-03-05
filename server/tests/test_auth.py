@@ -163,7 +163,7 @@ def test_support_callback(
             assert rv.status_code == 302
             assert urlparse(rv.location).path == "/support"
 
-            with client.session_transaction() as session:  # type: ignore
+            with client.session_transaction() as session:
                 assert session["_support_user"] == SA_EMAIL
                 assert_is_date(session["_created_at"])
                 assert datetime.now(timezone.utc) - datetime.fromisoformat(
@@ -193,7 +193,7 @@ def test_support_callback_rejected(
                 assert rv.status_code == 302
                 assert urlparse(rv.location).path == "/"
 
-                with client.session_transaction() as session:  # type: ignore
+                with client.session_transaction() as session:
                     assert session.get("_support_user") is None
 
                 assert auth0_sa.authorize_access_token.called
@@ -213,7 +213,7 @@ def test_support_callback_multiple_allowed_domains(
             assert rv.status_code == 302
             assert urlparse(rv.location).path == "/support"
 
-            with client.session_transaction() as session:  # type: ignore
+            with client.session_transaction() as session:
                 assert session["_support_user"] == "sa@example.gov"
     config.SUPPORT_EMAIL_DOMAINS = ["voting.works"]
 
@@ -231,7 +231,7 @@ def test_auditadmin_callback(client: FlaskClient, aa_email: str):
             rv = client.get("/auth/auditadmin/callback?code=foobar")
             assert rv.status_code == 302
 
-            with client.session_transaction() as session:  # type: ignore
+            with client.session_transaction() as session:
                 assert session["_user"]["type"] == UserType.AUDIT_ADMIN
                 assert session["_user"]["key"] == aa_email
                 assert_is_date(session["_created_at"])
@@ -294,7 +294,7 @@ def test_jurisdiction_admin_login(mock_smtp, client: FlaskClient, ja_email: str)
     assert_ok(rv)
 
     # JA should be logged in
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"]["type"] == UserType.JURISDICTION_ADMIN
         assert session["_user"]["key"] == ja_email
         assert_is_date(session["_created_at"])
@@ -416,7 +416,7 @@ def test_jurisdiction_admin_bad_code(mock_smtp, client: FlaskClient, ja_email: s
         ]
     }
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"] is None
 
     # Try again with a code generated
@@ -437,7 +437,7 @@ def test_jurisdiction_admin_bad_code(mock_smtp, client: FlaskClient, ja_email: s
         ]
     }
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"] is None
 
     # Try with the right code, wrong email
@@ -454,7 +454,7 @@ def test_jurisdiction_admin_bad_code(mock_smtp, client: FlaskClient, ja_email: s
         ]
     }
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"] is None
 
 
@@ -484,7 +484,7 @@ def test_jurisdiction_admin_expired_code(mock_smtp, client: FlaskClient, ja_emai
         ]
     }
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"] is None
 
 
@@ -526,7 +526,7 @@ def test_jurisdiction_admin_too_many_attempts(
         ]
     }
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"] is None
 
     rv = post_json(client, "/auth/jurisdictionadmin/code", dict(email=ja_email))
@@ -565,7 +565,7 @@ def test_audit_board_log_in(
     location = urlparse(rv.location)
     assert location.path == f"/election/{election_id}/audit-board/{audit_board_id}"
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"]["type"] == UserType.AUDIT_BOARD
         assert session["_user"]["key"] == audit_board_id
         assert_is_date(session["_created_at"])
@@ -1082,14 +1082,14 @@ def test_logout(client: FlaskClient, aa_email: str):
     # Logging out without support user should redirect to home
     set_logged_in_user(client, UserType.AUDIT_ADMIN, aa_email)
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         previous_session = session.copy()
 
     rv = client.get("/auth/logout")
     assert rv.status_code == 302
     assert urlparse(rv.location).path == "/"
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"] is None
         assert session.get("_support_user") is None
         assert session["_created_at"] == previous_session["_created_at"]
@@ -1103,14 +1103,14 @@ def test_logout(client: FlaskClient, aa_email: str):
     set_support_user(client, SA_EMAIL)
     set_logged_in_user(client, UserType.AUDIT_ADMIN, aa_email)
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         previous_session = session.copy()
 
     rv = client.get("/auth/logout")
     assert rv.status_code == 302
     assert urlparse(rv.location).path == "/support"
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"] is None
         # support user shouldn't get logged out
         assert session["_support_user"] == SA_EMAIL
@@ -1130,14 +1130,14 @@ def test_support_logout(client: FlaskClient, aa_email: str):
     # Logging out from support user only
     set_support_user(client, SA_EMAIL)
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         previous_session = session.copy()
 
     rv = client.get("/auth/support/logout")
     assert rv.status_code == 302
     assert urlparse(rv.location).path == "/"
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session["_user"] is None
         assert session["_support_user"] is None
         assert session["_created_at"] == previous_session["_created_at"]
@@ -1150,14 +1150,14 @@ def test_support_logout(client: FlaskClient, aa_email: str):
     set_support_user(client, SA_EMAIL)
     set_logged_in_user(client, UserType.AUDIT_ADMIN, aa_email)
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         previous_session = session.copy()
 
     rv = client.get("/auth/support/logout")
     assert rv.status_code == 302
     assert urlparse(rv.location).path == "/"
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         # Audit admin logged out as well
         assert session["_user"] is None
         assert session["_support_user"] is None
@@ -1192,7 +1192,7 @@ def test_audit_board_not_found(
         location.query == "error=audit_board_not_found&message=Audit+board+not+found."
     )
 
-    with client.session_transaction() as session:  # type: ignore
+    with client.session_transaction() as session:
         assert session.get("_user") is None
 
 

@@ -62,10 +62,7 @@ run: # Used for development, not during production deployment. Defaults to 3 por
 #
 
 typecheck:
-	poetry run basedpyright
-
-typecheck-update-baseline:
-	poetry run basedpyright --writebaseline
+	poetry run ty check
 
 format:
 	poetry run ruff format .

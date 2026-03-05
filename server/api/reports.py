@@ -458,7 +458,7 @@ def round_rows(election: Election):
             choice_id_to_name = {choice.id: choice.name for choice in contest.choices}
             cvr_choice_votes = Counter({choice.name: 0 for choice in contest.choices})
             for ballot in sampled_ballot_interpretations_to_cvrs(contest).values():
-                choice_votes = ballot["cvr"] and ballot["cvr"].get(contest.id)  # type: ignore
+                choice_votes = ballot["cvr"] and ballot["cvr"].get(contest.id)
                 if choice_votes:
                     cvr_choice_votes.update(
                         {
@@ -1044,7 +1044,7 @@ def sampled_batch_rows(election: Election, jurisdiction: Jurisdiction | None = N
             ]
             for contest in contests:
                 sub_batch_reported_results = list(
-                    sub_batch.jurisdiction.batch_tallies[sub_batch.name].get(contest.id)  # type: ignore
+                    sub_batch.jurisdiction.batch_tallies[sub_batch.name].get(contest.id)
                     for sub_batch in sub_batches
                 )
                 reported_results = {

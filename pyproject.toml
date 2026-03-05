@@ -37,7 +37,6 @@ werkzeug = "3.1.5"
 defusedxml = "^0.7.1"
 
 [tool.poetry.group.dev.dependencies]
-basedpyright = "^1.31.4"
 filelock = "^3.20.3"
 pytest = "^6.2.4"
 pytest-cov = "^2.12.1"
@@ -45,16 +44,37 @@ pytest-testmon = "^1.1.1"
 snapshottest = "^0.6.0"
 pytest-alembic = "^0.2.5"
 pytest-xdist = "^2.3.0"
-sqlalchemy-stubs = "^0.3"
 noauth = { git = "https://github.com/votingworks/nOAuth.git", rev = "main" }
 ruff = "^0.12.12"
 watchdog = "^6.0.0"
 types-chardet = "^5.0.4.6"
 types-boto3 = "^1.40.51"
 types-defusedxml = "^0.7.0.20250822"
+ty = "^0.0.20"
 
-[tool.basedpyright]
-stubPath = "stubs"
+[tool.ty.environment]
+python-version = "3.11"
+extra-paths = ["stubs"]
+
+[tool.ty.src]
+include = ["server", "scripts", "fixtures"]
+
+[tool.ty.rules]
+# SQLAlchemy 1.3 uses metaclass magic that ty can't yet understand,
+# causing false positives for ORM model constructors and query attributes.
+# These can be re-enabled once ty adds SQLAlchemy support.
+unknown-argument = "ignore"
+unresolved-attribute = "ignore"
+
+# Demote these to warnings for now. Many are caused by SQLAlchemy column
+# types being inferred as Python primitives rather than ORM descriptors,
+# and pre-existing loose typing in test data structures.
+invalid-argument-type = "warn"
+invalid-assignment = "warn"
+invalid-parameter-default = "warn"
+not-subscriptable = "warn"
+not-iterable = "warn"
+no-matching-overload = "warn"
 
 [tool.ruff.lint]
 ignore = [

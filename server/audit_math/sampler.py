@@ -113,7 +113,7 @@ def draw_ppeb_sample(
     assert batch_results, "Must have batch-level results to use MACRO"
 
     # Convert seed into something numpy can use
-    int_seed = int(consistent_sampler.sha256_hex(seed), 16)  # type: ignore
+    int_seed = int(consistent_sampler.sha256_hex(seed), 16)
     generator = default_rng(int_seed)
 
     U = macro.compute_U(batch_results, contest)
@@ -175,13 +175,13 @@ def draw_ppeb_sample(
         count = counts.get(batch_key, 0) + 1
 
         ticket = (
-            consistent_sampler.first_fraction(batch_key, seed)  # type: ignore
+            consistent_sampler.first_fraction(batch_key, seed)
             if count == 1
-            else consistent_sampler.next_fraction(tickets.get(batch_key)[-1])  # type: ignore
+            else consistent_sampler.next_fraction(tickets.get(batch_key)[-1])
         )
 
         # Trim the ticket number
-        ticket = consistent_sampler.trim(ticket, 18)  # type: ignore
+        ticket = consistent_sampler.trim(ticket, 18)
 
         sampled_batch_keys_including_previously_sampled_with_ticket_numbers.append(
             (ticket, batch_key)

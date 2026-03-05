@@ -225,7 +225,7 @@ def restrict_access(user_types: list[UserType]):
 
             return route(*args, **kwargs)
 
-        wrapper.has_access_control = True  # type: ignore
+        wrapper.has_access_control = True
 
         return wrapper
 
@@ -244,7 +244,7 @@ def restrict_access_support(route: Callable):
 
         return route(*args, **kwargs)
 
-    wrapper.has_access_control = True  # type: ignore
+    wrapper.has_access_control = True
 
     return wrapper
 
@@ -258,7 +258,7 @@ def allow_public_access(route: Callable):
     def wrapper(*args, **kwargs):
         return route(*args, **kwargs)
 
-    wrapper.has_access_control = True  # type: ignore
+    wrapper.has_access_control = True
 
     return wrapper
 
@@ -275,6 +275,6 @@ def allow_any_logged_in_user_access(route: Callable):
             raise Unauthorized("Please log in to access Arlo")
         return route(*args, **kwargs)
 
-    wrapper.has_access_control = True  # type: ignore
+    wrapper.has_access_control = True
 
     return wrapper
