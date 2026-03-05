@@ -325,6 +325,7 @@ class Jurisdiction(BaseModel):
         uselist=True,
         passive_deletes=True,
         order_by="Contest.created_at",
+        overlaps="jurisdictions",
     )
 
     __table_args__ = (UniqueConstraint("election_id", "name"),)
@@ -368,9 +369,12 @@ class AuditAdministration(BaseModel):
     organization = relationship(
         Organization,
         backref=backref("audit_administrations", cascade="all, delete-orphan"),
+        overlaps="organizations",
     )
     user = relationship(
-        User, backref=backref("audit_administrations", cascade="all, delete-orphan")
+        User,
+        backref=backref("audit_administrations", cascade="all, delete-orphan"),
+        overlaps="organizations",
     )
 
     __table_args__ = (PrimaryKeyConstraint("organization_id", "user_id"),)
@@ -389,10 +393,12 @@ class JurisdictionAdministration(BaseModel):
     jurisdiction = relationship(
         Jurisdiction,
         backref=backref("jurisdiction_administrations", cascade="all, delete-orphan"),
+        overlaps="jurisdictions",
     )
     user = relationship(
         User,
         backref=backref("jurisdiction_administrations", cascade="all, delete-orphan"),
+        overlaps="jurisdictions",
     )
 
     __table_args__ = (PrimaryKeyConstraint("user_id", "jurisdiction_id"),)
@@ -432,6 +438,7 @@ class Batch(BaseModel):
 
     draws = relationship(
         "SampledBatchDraw",
+        back_populates="batch",
         uselist=True,
         cascade="all, delete-orphan",
         passive_deletes=True,
@@ -500,6 +507,7 @@ class Contest(BaseModel):
         uselist=True,
         order_by="Jurisdiction.name",
         passive_deletes=True,
+        overlaps="contests",
     )
     results = relationship(
         "RoundContestResult",
@@ -814,6 +822,7 @@ class RoundContest(BaseModel):
         uselist=True,
         passive_deletes=True,
         cascade="all, delete-orphan",
+        overlaps="contest,results",
     )
 
     __table_args__ = (PrimaryKeyConstraint("round_id", "contest_id"),)
@@ -832,7 +841,7 @@ class RoundContestResult(BaseModel):
         ForeignKey("contest.id", ondelete="cascade"),
         nullable=False,
     )
-    contest = relationship("Contest", back_populates="results")
+    contest = relationship("Contest", back_populates="results", overlaps="results")
     __table_args__ = (
         PrimaryKeyConstraint("round_id", "contest_choice_id"),
         ForeignKeyConstraint(
@@ -916,7 +925,7 @@ class SampledBatchDraw(BaseModel):
         ForeignKey("batch.id", ondelete="cascade"),
         nullable=False,
     )
-    batch = relationship("Batch")
+    batch = relationship("Batch", back_populates="draws")
 
     round_id = Column(
         String(200), ForeignKey("round.id", ondelete="cascade"), nullable=False

@@ -47,5 +47,6 @@ def reset_db():
 def clear_db():  # pragma: no cover
     import server.models  # noqa: F401
 
-    for table in reversed(Base.metadata.sorted_tables):
-        engine.execute(table.delete())
+    with engine.begin() as connection:
+        for table in reversed(Base.metadata.sorted_tables):
+            connection.execute(table.delete())
